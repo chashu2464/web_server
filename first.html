@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel=”icon” href=”/favicon.ico” mce_href=”/dir/favicon.ico” type=”image/x-icon”>
+	<title>学习日志</title>
+</head>
+
+<body>
+	<div align="center" style = "float:center">
+		<div style="width: 900px;float: center">
+
+			<div class="wrap">
+
+		    	<a href="" class="selectImg" title="上传图片"></a>
+		        <input type="file" multiple id="file">
+		        <input type="button" value="上传" id="upload">
+		        <div class="preview"></div>
+		        <div class="progress">
+		            <progress max="100" value="1" item-width="100" id="progress"></progress>
+		        </div>
+		    </div>
+
+    		<h1 style="text-align:center">学习日志</h1>
+	
+			<div class="bd">
+				
+					<textarea id="editConent" rows="8" style="width: 450px"></textarea>
+			    	<div align="center">
+			    		<input type="date" id="editDate" value="2019-01-01"></input>
+			    		<input type="button" id="submit" onClick="submit()" value="Submit"></input>
+			    	</div>
+		    	
+		    </div>
+		    <hr>
+		    <br/>
+		    <div align="left">
+		    	<ul id="list" style="list-style-type:square"></ul></div>
+		</div>
+	</div>
+
+</body>
+
+<script src="jquery.min.js"></script>
+<script type="text/javascript"> 
+
+	var aUpload = document.querySelector('.selectImg')
+    var button = document.querySelector('#upload')
+	var fileinput = document.getElementById('file')
+
+	button.onclick = uploadFile
+	let previewDOM = document.getElementsByClassName('preview')[0]
+
+ 	fileinput.onchange = () => {
+        //console.log('dddd')
+        var files = fileinput.files
+        let imgDOMArray = new Array(files.length)
+        let reader = []
+        let thumbPic = []
+        progressDOM = document.getElementById('progress-img')
+        for (let i = 0; i < files.length; i++) {
+            reader[i] = new FileReader()
+            thumbPic[i] = document.createElement('div')
+			imgDOMArray[i] = document.createElement('img')
+			imgDOMArray[i].file = files[i]
+			thumbPic[i].className = 'thumbPic'
+			thumbPic[i].appendChild(imgDOMArray[i])
+			previewDOM.appendChild(thumbPic[i])
+			reader[i].readAsDataURL(files[i])
+			reader[i].onload = (img => {
+				return e =>{
+                        img.src = e.target.result
+                    }    
+			})(imgDOMArray[i])
+		}
+	}
+
+	function uploadFile() {
+		var xhr = new XMLHttpRequest()
+		var formdata = new FormData()
+
+		var files = fileinput.files
+		if (!files[0]) {
+			alert('请先选择图片，再上传！')
+			return
+		}
+
+		var progress = document.querySelector('progress')
+		for (let i = 0; i < files.length; i++) {
+			formdata.append('imgfile', files[i], files[i].name)
+		}
+		xhr.open('POST', '/uploadimg')
+		xhr.onload = () => {
+			if (xhr.status === 200 && xhr.responseText === 'success') {
+				previewDOM.innerHTML = ''
+				xhr = null
+				alert('图片上传成功！')
+			}
+		}
+		xhr.send(formdata)
+		xhr.upload.onprogress = e => {
+			if (e.lengthComputable) {
+				var progressWrap = document.querySelector('.progress')
+				progressWrap.style.display = "flex"
+				var percentComplete = e.loaded / e.total * 100
+				progress.value = percentComplete
+
+				if (percentComplete >= 100) {
+					progress.value = 0
+					progressWrap.style.display = "none"
+				}
+			}
+		}
+
+	}
+
+ 	function submit(){
+ 		var content = document.getElementById("editConent").value;
+ 		var date = document.getElementById("editDate").value;
+ 		var url = "save?content="+content+"&date="+date;
+ 		$.get(url,function(data){
+			alert(data);
+ 		});
+ 		reflesh();
+ 	}
+
+ 	function reflesh(){
+ 		$.get("reflesh",function(data){
+			$("#list").append('<li>' + data + '</li>'); 
+ 		});
+ 	}
+
+ </script>
+
+<script>
+ 	setTimeout(reflesh, 200);
+ </script>
+
+</html>
