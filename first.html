@@ -35,7 +35,8 @@
 		    <hr>
 		    <br/>
 		    <div align="left">
-		    	<ul id="list" style="list-style-type:square"></ul></div>
+		    	<p id="list" ></p>
+		    </div>
 		</div>
 	</div>
 
@@ -126,7 +127,7 @@
 
  	function reflesh(){
  		$.get("reflesh",function(data){
-			$("#list").append('<li>' + data + '</li>'); 
+			$("#list").append('<p>' + data + '</p>'); 
  		});
  	}
 
